@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: matkini_support
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  bot:
+    image: avusar/matkini-support:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      ADMIN_IDS: ${ADMIN_IDS}
+      BOT_USERNAME: ${BOT_USERNAME:-MatkiniSupportBot}
+      DB_URL: jdbc:postgresql://postgres:5432/matkini_support
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:

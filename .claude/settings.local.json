@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew build:*)",
+      "Bash(tree:*)",
+      "Bash(docker info:*)",
+      "Bash(python3 -c \"import sys,json; cfg=json.load\\(sys.stdin\\); print\\(list\\(cfg.get\\(''''auths'''',{}\\).keys\\(\\)\\)\\)\")",
+      "Bash(docker login:*)",
+      "Bash(until grep:*)",
+      "Bash(docker system:*)",
+      "Bash(docker build:*)",
+      "Bash(docker push:*)"
+    ]
+  }
+}
