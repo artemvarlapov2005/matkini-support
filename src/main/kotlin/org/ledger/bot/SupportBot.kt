@@ -20,6 +20,7 @@ import org.telegram.telegrambots.meta.api.objects.Update
 import org.telegram.telegrambots.meta.api.objects.User
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton
+import org.springframework.scheduling.annotation.Scheduled
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
@@ -328,6 +329,30 @@ class SupportBot(
         // Forward each media file
         messages.filter { it.mediaType != null && it.fileId != null }.forEach { msg ->
             sendMedia(adminChatId, msg.fileId!!, msg.mediaType!!, mediaCaption(msg, ticketId))
+        }
+    }
+
+    // ── Stale ticket reminder ────────────────────────────────────────────────
+
+    @Scheduled(fixedDelay = 5 * 60 * 1000) // every 5 minutes
+    fun remindAdminsAboutStaleTickets() {
+        val staleTickets = ticketService.getStaleOpenTickets(10)
+        if (staleTickets.isEmpty()) return
+
+        val text = buildString {
+            append("⏰ Напоминание: есть необработанные обращения (${staleTickets.size} шт.):\n\n")
+            staleTickets.forEach { t ->
+                val age = java.time.Duration.between(t.createdAt, java.time.Instant.now()).toMinutes()
+                append("• #${t.id} от ${t.userName} — ожидает ${age} мин.\n")
+            }
+        }
+
+        for (adminId in adminIds) {
+            try {
+                execute(SendMessage.builder().chatId(adminId).text(text).build())
+            } catch (e: Exception) {
+                log.warn("Could not send stale ticket reminder to admin {}: {}", adminId, e.message)
+            }
         }
     }
 
