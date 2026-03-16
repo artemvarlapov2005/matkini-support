@@ -1,6 +1,7 @@
 package org.ledger.model
 
 import jakarta.persistence.*
+import java.time.Instant
 
 enum class TicketStatus { OPEN, IN_PROGRESS, CLOSED }
 
@@ -16,6 +17,7 @@ class Ticket {
     var userName: String = ""
     var adminChatId: Long? = null
     var adminName: String? = null
+    var createdAt: Instant = Instant.now()
 
     @Enumerated(EnumType.STRING)
     var status: TicketStatus = TicketStatus.OPEN

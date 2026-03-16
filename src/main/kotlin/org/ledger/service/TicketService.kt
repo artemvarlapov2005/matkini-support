@@ -12,6 +12,8 @@ import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 @Service
 @Transactional(readOnly = true)
@@ -86,6 +88,12 @@ class TicketService(
     fun getOpenTickets(): List<Ticket> = ticketRepository.findByStatus(TicketStatus.OPEN)
 
     fun getAllTickets(): List<Ticket> = ticketRepository.findAllByOrderByIdDesc()
+
+    fun getStaleOpenTickets(olderThanMinutes: Long): List<Ticket> =
+        ticketRepository.findByStatusAndCreatedAtBefore(
+            TicketStatus.OPEN,
+            Instant.now().minus(olderThanMinutes, ChronoUnit.MINUTES)
+        )
 
     @Transactional
     fun saveMessage(

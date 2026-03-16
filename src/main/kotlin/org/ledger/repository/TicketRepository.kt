@@ -4,6 +4,7 @@ import org.ledger.model.Ticket
 import org.ledger.model.TicketStatus
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+import java.time.Instant
 
 @Repository
 interface TicketRepository : JpaRepository<Ticket, Long> {
@@ -15,4 +16,6 @@ interface TicketRepository : JpaRepository<Ticket, Long> {
     fun findByStatus(status: TicketStatus): List<Ticket>
 
     fun findAllByOrderByIdDesc(): List<Ticket>
+
+    fun findByStatusAndCreatedAtBefore(status: TicketStatus, before: Instant): List<Ticket>
 }
